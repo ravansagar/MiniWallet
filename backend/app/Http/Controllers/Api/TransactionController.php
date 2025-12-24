@@ -16,7 +16,18 @@ class TransactionController extends Controller
             'sender' => 'required|exists:users,phone',
             'reciver' => 'required|exists:users,phone',
             'amount' => 'required|numeric',
+            'tpin' => 'required|exists:users,tpin',
         ]);
+
+        $user = $request->user();
+        $tpin = $request->tpin;
+        $tpin = DB::table('users')->where('tpin', $tpin)->value('tpin');
+        if($tpin != $user->tpin){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid tpin',
+            ], 400);
+        }
 
         if ($validator->fails()) {
             return response()->json([

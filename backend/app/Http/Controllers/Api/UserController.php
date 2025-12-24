@@ -21,8 +21,8 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'string', 'max:15', 'unique:users'],
-            'transaction_otp' => ['required', 'string', 'max:4'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'tpin' => ['required', 'string', 'max:4'],
+            'password' => ['required', 'string', 'min:8'],
         ]);
 
         if ($validator->fails()) {
@@ -34,9 +34,9 @@ class UserController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'phone' => $request->phone,
+            'phone' => '+977'.$request->phone,
             'password' => bcrypt($request->password),
-            'transaction_otp' => $request->transaction_otp,
+            'tpin' => $request->tpin,
             'otp' => $this->otpService->generateOtp(),
             'otp_expires_at' => now()->addMinutes(10),
         ]);

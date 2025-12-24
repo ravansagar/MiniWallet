@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->timestamp('verified_at')->nullable();
             $table->string('password');
-            $table->string('transaction_otp');
+            $table->string('tpin');
             $table->string('phone')->unique();
             $table->decimal('balance', 10, 2)->default(0.00);
             $table->string('otp')->nullable();

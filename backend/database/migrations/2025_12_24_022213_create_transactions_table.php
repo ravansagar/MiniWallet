@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->string('status');
             $table->decimal('commission_fee', 10, 2);
+            $table->string('tpin')->constrained('users')->cascadeOnDelete();
             $table->string('description');
             $table->timestamps();
         });

@@ -1,0 +1,15 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#5368
+    [34mid[39m: [35m1[39m,
+    [34mname[39m: "[32mTinker Test[39m",
+    [34memail[39m: "[32mtinker@test.com[39m",
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: "[32m$2y$12$uSFlPdDIUrSnn6Hf2gx6wOfFSecQkSu8N19LQvutcJgqqx7Z5NfXS[39m",
+    [34mphone[39m: "[32m+9779746899004[39m",
+    [34mbalance[39m: "[32m0.00[39m",
+    [34motp[39m: [36mnull[39m,
+    [34motp_expires_at[39m: [36mnull[39m,
+    #[33mremember_token[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2025-12-24 07:02:06[39m",
+    [34mupdated_at[39m: "[32m2025-12-24 07:02:06[39m",
+  }
+

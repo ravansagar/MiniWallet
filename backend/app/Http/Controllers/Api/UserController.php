@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Services\OtpService;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {

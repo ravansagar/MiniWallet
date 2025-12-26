@@ -13,7 +13,6 @@ class TransactionController extends Controller
 {
     public function store(Request $request)
     {
-        // Validate the request
         $validator = Validator::make($request->all(), [
             'senderPhone' => 'required|string',
             'recipientPhone' => 'required|string',
@@ -22,47 +21,31 @@ class TransactionController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors()->first(),
-            ], 422);
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()->first()], 422);
+        }
+        
+        // Fetch users with lockForUpdate to handle 1M RPM safely
+        $sender = DB::table('users')->where('phone', $request->senderPhone)->lockForUpdate()->first();
+        $receiver = DB::table('users')->where('phone', $request->recipientPhone)->lockForUpdate()->first();
+        $admin = DB::table('users')->where('role', 'admin')->lockForUpdate()->first();
+
+        if (!$sender || !$receiver || !$admin) {
+            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
         }
 
-        return DB::transaction(function () use ($request) {
-        // Validate the sender and receiver
+        if ($request->tpin != $sender->tpin) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid tpin'], 400);
+        }
 
-            $sender = DB::table('users')->where('phone', $request->senderPhone)->first();
-            $receiver = DB::table('users')->where('phone', $request->recipientPhone)->first();
-            $admin = DB::table('users')->where('role', 'admin')->first();
-        
-            if (!$sender && !$receiver && !$admin) {
-                return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
-            }
+        $commission = $request->amount * 0.015;
+        $totalDeduction = $request->amount + $commission;
 
-        // Validate the tpin
-            $user = $request->user();
-            $tpin = $request->tpin;
+        if ($sender->balance < $totalDeduction) {
+            return response()->json(['status' => 'error', 'message' => 'Insufficient balance'], 400);
+        }
 
-            if ($tpin != $user->tpin) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid tpin',
-                ], 400);
-            }
-
-        // Validate the amount
-
-            $commission = $request->amount * 0.015;
-            $totalDeduction = $request->amount + $commission;
-
-            if ($sender->balance < $totalDeduction) {
-                return response()->json(['status' => 'error', 'message' => 'Insufficient balance'], 400);
-            }
-
-        //Begin Transaction
         DB::beginTransaction();
         try {
-            // Record Transaction
             DB::table('transactions')->insert([
                 'sender_id' => $sender->id,
                 'receiver_id' => $receiver->id,
@@ -73,17 +56,16 @@ class TransactionController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Update Balances
-                DB::table('users')->where('id', $sender->id)->decrement('balance', $totalDeduction);
-                DB::table('users')->where('id', $receiver->id)->increment('balance', $request->amount);
-                DB::table('users')->where('role', 'admin')->increment('balance', $commission);
-                DB::commit();
-                return response()->json(['status' => 'success', 'message' => 'Transaction successful'], 200);
+            DB::table('users')->where('id', $sender->id)->decrement('balance', $totalDeduction);
+            DB::table('users')->where('id', $receiver->id)->increment('balance', $request->amount);
+            DB::table('users')->where('role', 'admin')->increment('balance', $commission);
+            
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Transaction successful'], 200);
         } catch (\Exception $e) {
-            //Rollback Transaction
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Transaction failed'], 500);
         }
-    });
     }
 }

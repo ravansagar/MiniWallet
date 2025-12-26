@@ -4,20 +4,14 @@ import Register from './Components/Register'
 import Login from './Components/Login'
 import VerifyOtp from './Components/verifyOtp'
 import NavBar from './Components/NavBar'
+import WelcomePage from './Components/WelcomePage'
 import HomePage from './Components/HomePage'
 
 function App() {
-  const [page, setPage] = useState("register");
   const [phone, setPhone] = useState("");
-
-  useEffect(() => {
-    console.log(`Page: ${page}`);
-    console.log(`Phone: ${phone}`);
-  }, [page, phone]);
 
   const handleRegisterSuccess = (userPhone) => {
     setPhone(userPhone);
-    setPage('otp');
   };
 
   return (
@@ -25,16 +19,15 @@ function App() {
       <Router>
         <NavBar />
         <Routes>
-          <Route path="/" element={<HomePage handleRegisterSuccess={handleRegisterSuccess} />} />
+          <Route path="/" element={<WelcomePage handleRegisterSuccess={handleRegisterSuccess} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify-otp" element={<VerifyOtp phone={phone} />} />
+          <Route path="/home" element={<HomePage />} />
         </Routes>
       </Router>
     </div>
   )
 }
-// {page === "register" && <Register handleRegisterSuccess={handleRegisterSuccess} />}
-//       {page === "otp" && <VerifyOtp phone={phone} />}
-//       {page === "login" && <Login />}
+
 export default App;

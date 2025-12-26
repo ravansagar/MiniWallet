@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import api from "../api/axios"
+import { useNavigate, useLocation } from "react-router-dom";
 
-function VerifyOtp({ phone }) {
+function VerifyOtp() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const phone = location.state?.phone;
     const [formData, setFormData] = useState({
         otp: "",
     });
@@ -16,13 +20,21 @@ function VerifyOtp({ phone }) {
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
 
+        if (!phone) {
+            alert("Session expired. Please register again.");
+            navigate("/register");
+            return;
+        }
+
         try {
+            console.log(formData.otp, phone);
             const response = await api.post("/verify-otp", {
                 otp: formData.otp,
                 phone: phone,
             });
-            console.log(response.data);
-            alert("OTP verified successfully!");
+            if (response.data.status === "success") {
+                navigate("/login", { replace: true });
+            }
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || "OTP verification failed");

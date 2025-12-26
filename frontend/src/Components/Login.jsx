@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import api from "../api/axios"
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         phone: "",
         password: "",
@@ -22,8 +24,14 @@ function Login() {
                 phone: "+977" + formData.phone,
                 password: formData.password,
             });
-            localStorage.setItem("token", response.data.token);
-
+            const token = response.data?.token || response.data.token;
+            const user = response.data.data || response.data.user;
+            if (token) {
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", JSON.stringify(user));
+                console.log(JSON.parse(localStorage.getItem("user")));
+                navigate("/home", { replace: true });
+            }
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || "Login failed");

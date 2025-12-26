@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import api from "../api/axios"
+import { useNavigate } from "react-router-dom";
 
 function Register({ handleRegisterSuccess }) {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -39,12 +41,13 @@ function Register({ handleRegisterSuccess }) {
                 tpin: formData.tpin,
             });
 
-            if (handleRegisterSuccess) {
-                console.log("Phone number:", "+977" + formData.phone);
-                handleRegisterSuccess("+977" + formData.phone);
+            if (response.data.status === "success") {
+                if (handleRegisterSuccess) {
+                    handleRegisterSuccess("+977" + formData.phone);
+                }
+                navigate("/verify-otp", { replace: true, state: { phone: "+977" + formData.phone } });
             }
-            // console.log(response.data);
-            // alert("Registration successful!");
+
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || "Registration failed");

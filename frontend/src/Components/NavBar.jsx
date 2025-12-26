@@ -1,11 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
+import api from "../api/axios";
+import { Link } from "react-router-dom";
 
 function NavBar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        if (token) {
+            setLoggedIn(true);
+        }
+    }, [token]);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
+    };
+
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                await api.post("/logout", {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Logout failed on server, but clearing local session anyway.", error);
+        } finally {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setLoggedIn(false);
+        }
     };
 
     return (
@@ -38,18 +67,30 @@ function NavBar() {
                         <li>
                             <a href="/" className="block py-2 px-3 text-gray-900 rounded hover:text-blue-600 md:p-0">Services</a>
                         </li>
+                        {!loggedIn ? (
+                            <>
+                                <li className="pt-2 md:pt-0">
+                                    <Link to="/login" className="block py-2 px-5 text-center text-gray-900 border border-gray-900 rounded-lg hover:bg-blue-500 hover:text-white hover:border-white transition-colors md:text-sm">
+                                        Login
+                                    </Link>
+                                </li>
 
-                        <li className="pt-2 md:pt-0">
-                            <a href="/login" className="block py-2 px-5 text-center text-gray-900 border border-gray-900 rounded-lg hover:bg-blue-500 hover:text-white hover:border-white transition-colors md:text-sm">
-                                Login
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="/register" className="block py-2 px-5 text-center text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-white hover:text-blue-600 hover:border-blue-600 transition-colors shadow-sm md:text-sm">
-                                Register
-                            </a>
-                        </li>
+                                <li>
+                                    <Link to="/register" className="block py-2 px-5 text-center text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-white hover:text-blue-600 hover:border-blue-600 transition-colors shadow-sm md:text-sm">
+                                        Register
+                                    </Link>
+                                </li>
+                            </>
+                        ) : (
+                            <li className="pt-2 md:pt-0">
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full py-2 px-5 text-center text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-white hover:text-blue-600 hover:border-blue-600 transition-colors shadow-sm md:text-sm font-medium"
+                                >
+                                    Logout
+                                </button>
+                            </li>
+                        )}
                     </ul>
                 </div>
             </div>

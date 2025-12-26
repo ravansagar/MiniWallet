@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+       Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('receiver_id')->constrained('users')->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
-            $table->string('status');
-            $table->decimal('commission_fee', 10, 2);
-            $table->string('tpin')->constrained('users')->cascadeOnDelete();
-            $table->string('description');
+            $table->string('status')->default('success');
+            $table->decimal('commission_fee', 10, 2)->default(0.00);
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

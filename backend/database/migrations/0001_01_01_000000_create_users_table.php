@@ -19,9 +19,10 @@ return new class extends Migration
             $table->string('password');
             $table->string('tpin');
             $table->string('phone')->unique();
-            $table->decimal('balance', 10, 2)->default(0.00);
+            $table->decimal('balance', 20, 2)->default(0);
             $table->string('otp')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
+            $table->string('role')->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -75,11 +75,13 @@ class UserController extends Controller
             ], 401);
         }
 
-        $this->otpService->sendOtp($user, 'whatsapp');
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'status' => 'success',
-            'message' => 'OTP sent successfully to your whatsapp',
+            'message' => 'User logged in successfully',
+            'data' => $user,
+            'token' => $token,
         ]);
     }
 
@@ -106,15 +108,13 @@ class UserController extends Controller
         $user->update([
             'otp' => null,
             'otp_expires_at' => null,
+            'verified_at' => now(),
         ]);
-
-        $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'status' => 'success',
             'message' => 'OTP verified successfully',
             'data' => $user,
-            'token' => $token,
         ]);
     }
     // 4. Logout
@@ -126,5 +126,16 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Logged out successfully',
         ]);
+    }
+    // 5. Balance
+    public function balance(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User balance',
+            'data' => $user,
+        ]); 
     }
 }
